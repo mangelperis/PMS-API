@@ -1,0 +1,14 @@
+App\Domain\Entity\Guest:
+  attributes:
+    name:
+      groups: [ 'STAY' ]
+    lastname:
+      groups: [ 'STAY' ]
+    birthdate:
+      groups: [ 'STAY' ]
+    passport:
+      groups: [ 'STAY' ]
+    country:
+      groups: [ 'STAY' ]
+#    age:
+#      groups: [ 'STAY' ]
