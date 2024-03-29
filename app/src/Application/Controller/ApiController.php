@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 
-namespace App\Controller;
+namespace App\Application\Controller;
 
 use Predis\Client;
 use Psr\Log\LoggerInterface;
