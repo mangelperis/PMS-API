@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+    php-fpm:
+        env_file:
+            - .env
+        container_name: php-fpm
+        #extra_hosts REQUIRED in Linux for xdebug!!
+        extra_hosts:
+            - host.docker.internal:host-gateway
+        #######
+        build:
+            dockerfile: ./docker/php-fpm/Dockerfile
+        volumes:
+            - ${PATH_TO_SYMFONY_PROJECT}:/var/www
+            - ${FPM_LOG_DIR}:/var/log/php-fpm/
+        networks:
+            - pms
+
+    nginx:
+        env_file:
+            - .env
+        container_name: nginx
+        build:
+            context: ./docker/nginx
+        volumes:
+            - ${PATH_TO_SYMFONY_PROJECT}:/var/www
+            - ${NGINX_LOG_DIR}:/var/log/nginx
+        ports:
+            - "80:80"
+            - "443:443"
+        networks:
+            - pms
+
+    redis:
+        env_file:
+            - .env
+        build:
+            context: ./docker/redis
+        container_name: redis
+        ports:
+            - "6379:6379"
+        volumes:
+            - ${REDIS_DATA_DIR}:/data
+        restart: always
+        networks:
+            - pms
+volumes:
+    redis_data:
+networks:
+    pms:
