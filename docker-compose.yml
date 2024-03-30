@@ -31,7 +31,20 @@ services:
             - "443:443"
         networks:
             - pms
-
+    mariadb:
+        container_name: mariadb
+        image: mariadb:11.1.4
+        environment:
+            - MARIADB_ROOT_PASSWORD=${ROOT_PASSWORD}
+            - MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=0
+            - MARIADB_DATABASE=${DB_NAME}
+        volumes:
+            - ${PATH_TO_DB_DATA}:/var/lib/mysql:rw
+            - ./docker/extras/mariadb.cnf:/etc/mysql/my.cnf
+        ports:
+            - "3306:3306"
+        networks:
+            - pms
     redis:
         env_file:
             - .env
