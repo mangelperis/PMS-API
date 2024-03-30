@@ -3,10 +3,12 @@
 namespace App\Domain\Entity;
 
 use DateTimeInterface;
+use Doctrine\Common\Collections\Collection;
 use Ramsey\Uuid\UuidInterface;
 
 interface BookingInterface
 {
+    public function getId(): int;
     public function getBookingId(): UuidInterface;
 
     public function getHotelId(): string;
@@ -19,6 +21,6 @@ interface BookingInterface
 
     public function getCheckOut(): DateTimeInterface;
 
-    public function getGuests(): array;
+    public function getGuests(): Collection;
 
 }

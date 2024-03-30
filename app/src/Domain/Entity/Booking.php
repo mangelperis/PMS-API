@@ -4,48 +4,77 @@ declare(strict_types=1);
 
 namespace App\Domain\Entity;
 
-use App\API\DTO\BookingDTO;
 use App\Domain\Entity\Validation\BookingId;
 use DateTime;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
+#[ORM\Entity]
+#[ORM\Table(name: 'bookings')]
 class Booking implements BookingInterface
 {
+
+    #[Assert\Type(type: 'integer')]
+    #[Assert\NotBlank]
+    #[ORM\Id]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
+    #[ORM\Column(type: 'integer')]
+    private int $id;
     #[Assert\Uuid]
     #[Assert\NotBlank]
+    #[ORM\Column(type: 'uuid')]
     private UuidInterface $bookingId;
     #[Assert\Type(type: 'integer')]
     #[Assert\Choice(callback: [BookingId::class, 'getValidHotelId'])]
     #[Assert\NotBlank]
+    #[ORM\Column(type: 'string')]
     private string $hotelId;
     #[Assert\Type(type: 'string')]
     #[Assert\NotBlank]
+    #[ORM\Column(type: 'string')]
     private string $locator;
     #[Assert\Type(type: 'string')]
     #[Assert\NotBlank]
+    #[ORM\Column(type: 'string')]
     private string $room;
     #[Assert\Date]
     #[Assert\NotBlank]
+    #[ORM\Column(type: 'datetime')]
     private DateTime $checkIn;
     #[Assert\Date]
     #[Assert\NotBlank]
+    #[ORM\Column(type: 'datetime')]
     private DateTime $checkOut;
+
+    /**
+     * @var Collection<Guest>
+     */
     #[Assert\Type(type: 'array')]
-    private array $guests;
+    #[ORM\OneToMany(targetEntity: 'App\Domain\Entity\Guest', mappedBy: 'booking')]
+    private Collection $guests;
+
+    #[Gedmo\Timestampable(on: 'create')]
+    #[ORM\Column(name: 'created', type: Types::DATETIME_MUTABLE)]
+    private DateTime $created;
+    #[Gedmo\Timestampable(on: 'update')]
+    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
+    private DateTime $updated;
 
     public function __construct(
-        UuidInterface   $bookingId,
-        string   $hotelId,
-        string   $locator,
-        string   $room,
-        DateTime $checkIn,
-        DateTime $checkOut,
-        array    $guests
+        string        $hotelId,
+        string        $locator,
+        string        $room,
+        DateTime      $checkIn,
+        DateTime      $checkOut,
+        Collection    $guests
     )
     {
-        $this->bookingId = $bookingId;
+        $this->bookingId = Uuid::uuid4();
         $this->hotelId = $hotelId;
         $this->locator = $locator;
         $this->room = $room;
@@ -62,7 +91,6 @@ class Booking implements BookingInterface
     public static function createFromObject(object $booking): self
     {
         return new self(
-            $booking->bookingId,
             $booking->hotelId,
             $booking->locator,
             $booking->room,
@@ -121,75 +149,16 @@ class Booking implements BookingInterface
     }
 
     /**
-     * @return array
+     * @return Collection
      */
-    public function getGuests(): array
+    public function getGuests(): Collection
     {
         return $this->guests;
     }
 
-    /**
-     * @return array
-     */
-    public function normalize(): array
+    public function getId(): int
     {
-        return [
-            'bookingId' => $this->getBookingId(),
-            'hotel' => $this->getHotelId(), //TO DO ... transform
-            'locator' => $this->getLocator(),
-            'room' => $this->getRoom(),
-            'checkIn' => $this->getCheckIn()->format('Y-m-d'),
-            'checkOut' => $this->getCheckOut()->format('Y-m-d'),
-            'numberOfNights' => $this->getNumberOfNights(),
-            'totalPax' => count($this->getGuests()),
-            'guests' => array_map(function (Guest $guest) {
-                return [
-                    'name' => $guest->getName(),
-                    'lastname' => $guest->getLastname(),
-                    'birthdate' => $guest->getBirthdate()->format('Y-m-d'),
-                    'passport' => $guest->getPassport(),
-                    'country' => $guest->getCountry(),
-                ];
-            }, $this->getGuests()),
-        ];
-    }
-
-    /**
-     * Get the number of nights for the booking.
-     *
-     * @return int
-     */
-    public function getNumberOfNights(): int
-    {
-        $checkIn = $this->getCheckIn();
-        $checkOut = $this->getCheckOut();
-
-        // Calculate the interval between checkIn and checkOut dates
-        $interval = $checkOut->diff($checkIn);
-
-        // Return the number of nights (days)
-        return $interval->days;
-    }
-
-    /**
-     * Create a Booking entity from a BookingDTO.
-     *
-     * @param BookingDTO $bookingDTO
-     * @return Booking
-     */
-    public static function denormalize(BookingDTO $bookingDTO): Booking
-    {
-        $bookingId = Uuid::uuid4();
-
-        return new self(
-            $bookingId,
-            $bookingDTO->getHotelId(),
-            $bookingDTO->getLocator(),
-            $bookingDTO->getRoom(),
-            $bookingDTO->getCheckIn(),
-            $bookingDTO->getCheckOut(),
-            $bookingDTO->getGuests()
-        );
+        return $this->id;
     }
 }
 
