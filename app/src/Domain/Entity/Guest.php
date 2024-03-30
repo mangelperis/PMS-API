@@ -32,7 +32,7 @@ class Guest
     #[Assert\Type(type: 'date')]
     #[Assert\NotBlank]
     #[ORM\Column(type: 'date')]
-    private \DateTime $birthdate;
+    private DateTime $birthdate;
     #[Assert\Type(type: 'string')]
     #[Assert\NotBlank]
     #[ORM\Column(type: 'string', length: 13)]
@@ -66,9 +66,9 @@ class Guest
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
-    public function getBirthdate(): \DateTime
+    public function getBirthdate(): DateTime
     {
         return $this->birthdate;
     }
