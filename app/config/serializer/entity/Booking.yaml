@@ -14,5 +14,7 @@ App\Domain\Entity\Booking:
       groups: [ 'STAY' ]
     numberOfNights:
       groups: [ 'STAY' ]
-#    totalPax:
-#      groups: [ 'STAY' ]
+    totalPax:
+      groups: [ 'STAY' ]
+    guests:
+      groups: [ 'STAY' ]
