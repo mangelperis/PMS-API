@@ -13,11 +13,10 @@ use Symfony\Bridge\Doctrine\ManagerRegistry;
 class BookingRepository extends ServiceEntityRepository implements BookingRepositoryInterface
 {
     private EntityManagerInterface $entityManager;
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(ManagerRegistry $registry, EntityManagerInterface $entityManager)
     {
         parent::__construct($registry, Booking::class);
-        $this->entityManager = $this->getEntityManager();
-
+        $this->entityManager = $entityManager;
     }
 
 
