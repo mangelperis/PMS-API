@@ -30,8 +30,9 @@ class GuestMapper
      * @param Guest $guest
      * @return mixed
      */
-    public function normalizeBookingToJSON(Guest $guest): string
+    public function normalizeGuestToJSON(Guest $guest): string
     {
         return $this->serializer->serialize($guest, 'json', ['groups' => SerializerConstants::SERIALIZER_GROUP]);
     }
+
 }
