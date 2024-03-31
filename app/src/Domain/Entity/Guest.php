@@ -53,8 +53,8 @@ class Guest
 
     #[Assert\Type(type: 'integer')]
     #[Assert\NotBlank]
-    #[ORM\ManyToMany(targetEntity: 'App\Domain\Entity\Booking', inversedBy: 'guests')]
-    #[ORM\JoinColumn(nullable: false)]
+    #[ORM\ManyToOne(targetEntity: 'App\Domain\Entity\Booking', inversedBy: 'guests')]
+    #[ORM\JoinColumn(name: 'booking_id', referencedColumnName: 'id')]
     private int $bookingId;//Better performance instead of associate the Object ref
 
     public function __construct(
