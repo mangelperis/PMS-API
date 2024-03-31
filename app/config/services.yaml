@@ -30,3 +30,11 @@ services:
         tags: ['controller.service_arguments']
 
 
+    App\Infrastructure\Serializer\CustomBookingNormalizer:
+        tags: ['serializer.normalizer']
+
+    App\Infrastructure\Serializer\CustomBookingDenormalizer:
+        tags: ['serializer.denormalizer']
+
+    App\Infrastructure\Serializer\CustomGuestNormalizer:
+        tags: ['serializer.normalizer']
