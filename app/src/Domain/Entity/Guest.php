@@ -57,6 +57,20 @@ class Guest
     #[ORM\JoinColumn(nullable: false)]
     private int $bookingId;//Better performance instead of associate the Object ref
 
+    public function __construct(
+        string $name,
+        string $lastname,
+        DateTime $birthdate,
+        string $passport,
+        string $country
+    ) {
+        $this->name = $name;
+        $this->lastname = $lastname;
+        $this->birthdate = $birthdate;
+        $this->passport = $passport;
+        $this->country = $country;
+    }
+
     /**
      * @return string
      */
