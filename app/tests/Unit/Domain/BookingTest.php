@@ -4,6 +4,7 @@ namespace App\Tests\Unit\Domain;
 
 use App\Domain\Entity\Booking;
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
 use PHPUnit\Framework\TestCase;
 
 class BookingTest extends TestCase
@@ -13,13 +14,12 @@ class BookingTest extends TestCase
     public function setUp(): void
     {
         $this->sampleBookingObject = (object)[
-            'bookingId' => 'f8273b3c-9b69-4993-885f-2cb00687174a',
             'hotelId' => '70ce8358-600a-4bad-8ee6-acf46e1fb8db',
             'locator' => '649576941E9C7',
             'room' => '299',
             'checkIn' => '2023-06-23',
             'checkOut' => '2023-06-30',
-            'guests' => [
+            'guests' => new ArrayCollection([
                 (object)[
                     'name' => 'Jesús',
                     'lastname' => 'Delagarza',
@@ -27,7 +27,7 @@ class BookingTest extends TestCase
                     'passport' => 'MF-1645022-OZ',
                     'country' => 'MF',
                 ],
-            ],
+            ]),
         ];
     }
 
@@ -40,10 +40,9 @@ class BookingTest extends TestCase
         $room = '299';
         $checkIn = new DateTime('2023-06-23');
         $checkOut = new DateTime('2023-06-30');
-        $guests = [];
+        $guests = new ArrayCollection();
 
         $booking = new Booking(
-            $bookingId,
             $hotelId,
             $locator,
             $room,
@@ -53,7 +52,6 @@ class BookingTest extends TestCase
         );
 
         // Assert that the constructor sets the properties correctly
-        $this->assertSame($bookingId, $booking->getBookingId());
         $this->assertSame($hotelId, $booking->getHotelId());
         $this->assertSame($locator, $booking->getLocator());
         $this->assertSame($room, $booking->getRoom());
@@ -72,7 +70,6 @@ class BookingTest extends TestCase
 
         // Assert that the method sets the properties correctly
         $this->assertInstanceOf(Booking::class, $booking);
-        $this->assertSame($this->sampleBookingObject->bookingId, $booking->getBookingId());
         $this->assertSame($this->sampleBookingObject->hotelId, $booking->getHotelId());
         $this->assertSame($this->sampleBookingObject->locator, $booking->getLocator());
         $this->assertSame($this->sampleBookingObject->room, $booking->getRoom());
