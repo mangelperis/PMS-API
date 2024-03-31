@@ -50,6 +50,13 @@ class Guest
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private DateTime $updated;
 
+
+    #[Assert\Type(type: 'integer')]
+    #[Assert\NotBlank]
+    #[ORM\ManyToMany(targetEntity: 'App\Domain\Entity\Booking', inversedBy: 'guests')]
+    #[ORM\JoinColumn(nullable: false)]
+    private int $bookingId;//Better performance instead of associate the Object ref
+
     /**
      * @return string
      */
@@ -90,8 +97,28 @@ class Guest
         return $this->country;
     }
 
+    /**
+     * @return int
+     */
     public function getId(): int
     {
         return $this->id;
+    }
+
+    /**
+     * @return int
+     */
+    public function getBookingId(): int
+    {
+        return $this->bookingId;
+    }
+
+    /**
+     * @param int $bookingId
+     * @return void
+     */
+    public function setBooking(int $bookingId): void
+    {
+        $this->bookingId = $bookingId;
     }
 }

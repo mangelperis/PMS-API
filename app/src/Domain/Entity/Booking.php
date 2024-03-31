@@ -58,7 +58,7 @@ class Booking implements BookingInterface
      * @var Collection<Guest>
      */
     #[Assert\Type(type: 'array')]
-    #[ORM\OneToMany(targetEntity: 'App\Domain\Entity\Guest', mappedBy: 'booking')]
+    #[ORM\OneToMany(targetEntity: 'App\Domain\Entity\Guest', mappedBy: 'booking', cascade:["persist", "remove"])]
     private Collection $guests;
 
     #[Gedmo\Timestampable(on: 'create')]
