@@ -6,21 +6,39 @@ namespace App\Infrastructure\Serializer;
 
 use App\Domain\Entity\Booking;
 use App\Domain\Entity\Guest;
-use Symfony\Component\Serializer\Normalizer\AbstractNormalizer;
+use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\NormalizerInterface;
 
-class CustomBookingNormalizer  implements NormalizerInterface
+class CustomBookingNormalizer implements NormalizerInterface
 {
+    private CustomGuestNormalizer $guestNormalizer;
+
+    public function __construct(CustomGuestNormalizer $guestNormalizer)
+    {
+        $this->guestNormalizer = $guestNormalizer;
+    }
+
+
     /**
      * @param $object
      * @param string|null $format
      * @param array $context
      * @return array
+     * @throws ExceptionInterface
      */
     public function normalize($object, string $format = null, array $context = []): array
     {
         /** @var Booking $booking */
         $booking = clone $object;
+        $guests = $booking->getGuests();
+        $normalizedGuests = [];
+
+        // Normalized guests instead of manual array_map
+        /** @var Guest $guest */
+        foreach ($guests as $guest) {
+            $normalizedGuests[] = $this->guestNormalizer->normalize($guest, 'array', [SerializerConstants::SERIALIZER_GROUP]);
+        }
+
         return [
             'bookingId' => $booking->getBookingId(),
             'hotel' => $booking->getHotelId(),
@@ -30,15 +48,7 @@ class CustomBookingNormalizer  implements NormalizerInterface
             'checkOut' => $booking->getCheckOut()->format('Y-m-d'),
             'numberOfNights' => $this->getNumberOfNights($booking),
             'totalPax' => count($booking->getGuests()),
-            'guests' => array_map(function (Guest $guest) {
-                return [
-                    'name' => $guest->getName(),
-                    'lastname' => $guest->getLastname(),
-                    'birthdate' => $guest->getBirthdate()->format('Y-m-d'),
-                    'passport' => $guest->getPassport(),
-                    'country' => $guest->getCountry(),
-                ];
-            }, $booking->getGuests()->toArray()),
+            'guests' => $normalizedGuests,
         ];
     }
 
