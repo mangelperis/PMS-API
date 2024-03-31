@@ -5,21 +5,11 @@ declare(strict_types=1);
 namespace App\Domain\Repository;
 
 use App\Domain\Entity\Booking;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityRepository;
 use Exception;
-use Symfony\Bridge\Doctrine\ManagerRegistry;
 
-class BookingRepository extends ServiceEntityRepository implements BookingRepositoryInterface
+class BookingRepository extends EntityRepository implements BookingRepositoryInterface
 {
-    private EntityManagerInterface $entityManager;
-    public function __construct(ManagerRegistry $registry, EntityManagerInterface $entityManager)
-    {
-        parent::__construct($registry, Booking::class);
-        $this->entityManager = $entityManager;
-    }
-
-
     /**
      * @param Booking $booking
      * @return bool
@@ -27,8 +17,8 @@ class BookingRepository extends ServiceEntityRepository implements BookingReposi
     public function save(Booking $booking): bool
     {
         try {
-            $this->entityManager->persist($booking);
-            $this->entityManager->flush();
+            $this->getEntityManager()->persist($booking);
+            $this->getEntityManager()->flush();
             return true;
         } catch (Exception $exception) {
             return false;
