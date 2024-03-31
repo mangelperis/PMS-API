@@ -16,6 +16,9 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'bookings')]
+#[ORM\UniqueConstraint(name: 'booking_id', columns: ['booking_id'])]
+#[ORM\Index(name: 'hotel_id', columns: ['hotel_id'])]
+#[ORM\Index(name: 'locator', columns: ['locator'])]
 class Booking implements BookingInterface
 {
 
@@ -66,12 +69,12 @@ class Booking implements BookingInterface
     private DateTime $updated;
 
     public function __construct(
-        string        $hotelId,
-        string        $locator,
-        string        $room,
-        DateTime      $checkIn,
-        DateTime      $checkOut,
-        Collection    $guests
+        string     $hotelId,
+        string     $locator,
+        string     $room,
+        DateTime   $checkIn,
+        DateTime   $checkOut,
+        Collection $guests
     )
     {
         $this->bookingId = Uuid::uuid4();

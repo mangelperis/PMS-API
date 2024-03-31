@@ -12,6 +12,7 @@ use Gedmo\Mapping\Annotation as Gedmo;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'guests')]
+#[ORM\UniqueConstraint(name: 'passport', columns: ['passport'])]
 class Guest
 {
     #[Assert\Type(type: 'integer')]
