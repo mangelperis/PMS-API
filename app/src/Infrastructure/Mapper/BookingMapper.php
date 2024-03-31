@@ -37,7 +37,7 @@ class BookingMapper
 
     /** Uses CustomBookingNormalizer, Entity to JSON filtering the defined groups in serializer/entity/Booking.yaml
      * @param Booking $booking
-     * @return mixed
+     * @return string
      */
     public function normalizeBookingToJSON(Booking $booking): string
     {

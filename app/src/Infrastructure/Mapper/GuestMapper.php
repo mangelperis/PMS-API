@@ -28,7 +28,7 @@ class GuestMapper
 
     /** Uses CustomGuestNormalizer, Entity to JSON filtering the defined groups in serializer/entity/Guest.yaml
      * @param Guest $guest
-     * @return mixed
+     * @return string
      */
     public function normalizeGuestToJSON(Guest $guest): string
     {
