@@ -6,6 +6,7 @@ namespace App\Domain\Entity;
 
 use App\Domain\Entity\Validation\BookingId;
 use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -14,7 +15,7 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: 'App\Domain\Repository\BookingRepository')]
 #[ORM\Table(name: 'bookings')]
 #[ORM\UniqueConstraint(name: 'booking_id', columns: ['booking_id'])]
 #[ORM\Index(name: 'hotel_id', columns: ['hotel_id'])]
@@ -55,11 +56,11 @@ class Booking implements BookingInterface
     private DateTime $checkOut;
 
     /**
-     * @var Collection<Guest>
+     * @var ArrayCollection<Guest>
      */
     #[Assert\Type(type: 'array')]
     #[ORM\OneToMany(targetEntity: 'App\Domain\Entity\Guest', mappedBy: 'booking', cascade:["persist", "remove"])]
-    private Collection $guests;
+    private ArrayCollection $guests;
 
     #[Gedmo\Timestampable(on: 'create')]
     #[ORM\Column(name: 'created', type: Types::DATETIME_MUTABLE)]
