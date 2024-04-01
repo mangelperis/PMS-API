@@ -25,23 +25,22 @@ class CustomBookingNormalizer implements NormalizerInterface
      * @param $object
      * @param string|null $format
      * @param array $context
-     * @return string
+     * @return array
      * @throws ExceptionInterface
      */
-    public function normalize($object, string $format = null, array $context = []): string
+    public function normalize($object, string $format = null, array $context = []): array
     {
         /** @var Booking $booking */
         $booking = clone $object;
         $guests = $booking->getGuests();
         $normalizedGuests = [];
-
         // Normalized guests instead of manual array_map
         /** @var Guest $guest */
         foreach ($guests as $guest) {
-            $normalizedGuests[] = $this->guestNormalizer->normalize($guest, 'array', [SerializerConstants::SERIALIZER_GROUP]);
+            $normalizedGuests[] = $this->guestNormalizer->normalize($guest, 'array');
         }
 
-        $dto = [
+        return [
             'bookingId' => $booking->getBookingId(),
             'hotel' => $booking->getHotelId(),
             'locator' => $booking->getLocator(),
@@ -52,8 +51,6 @@ class CustomBookingNormalizer implements NormalizerInterface
             'totalPax' => count($booking->getGuests()),
             'guests' => $normalizedGuests,
         ];
-
-        return json_encode($dto);
     }
 
     /**

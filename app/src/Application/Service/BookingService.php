@@ -74,12 +74,13 @@ class BookingService
             $persist = $this->persistBookingData($transformed, $hotelId, $roomNumber);
         }
         //Query Results always executed
-        return $this->returnBookingData();
+        return $this->returnBookingData($hotelId, $roomNumber);
     }
 
     /**
      * @return array|null
      * @throws TransportExceptionInterface
+     * @throws Exception
      */
     private function fetchBookingData(): ?ResponseInterface
     {
@@ -114,14 +115,15 @@ class BookingService
     private function processBookingResponse(ResponseInterface $response): ?array
     {
         try {
-            $content = $response->getContent();
+            $content = $response->getContent();//String (json)
 
-            $data = json_decode($content, true);
+            $data = json_decode($content, true);//Array
 
             if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
                 throw new Exception(sprintf('Error decoding JSON: %s', json_last_error_msg()));
             }
 
+            /** @var array $data */
             return $data;
 
         } catch (ClientExceptionInterface|TransportExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface $e) {
@@ -177,7 +179,13 @@ class BookingService
 
     }
 
-    private function persistBookingData(array $data, string $hotelId, string $roomNumber)
+    /**
+     * @param array $data
+     * @param string $hotelId
+     * @param string $roomNumber
+     * @return bool
+     */
+    private function persistBookingData(array $data, string $hotelId, string $roomNumber): bool
     {
         try {
             $timestamp = 0;
@@ -191,6 +199,7 @@ class BookingService
                 //Persist
                 $result = $this->repository->save($booking);
 
+                //When saved OK
                 if ($result) {
                     $bookingTimestamp = $booking->getCreated()->getTimestamp();
 
@@ -203,7 +212,9 @@ class BookingService
 
                     //Set on system cache the requested API data if matches, to prevent query the database again later
                     if ($booking->getHotelId() === $hotelId && $booking->getRoom() === $roomNumber) {
-                        $this->cacheRepository->storeEntity($booking);
+                        //need serialization to store the json
+                        $json = $this->bookingMapper->normalizeBookingToJSON($booking);
+                        $this->cacheRepository->storeEntity($booking, $json);
                     }
                 }
 
@@ -217,9 +228,32 @@ class BookingService
 
     }
 
-    private function returnBookingData(): JsonResponse
+    /**
+     * @param string $hotelId
+     * @param string $roomNumber
+     * @return JsonResponse
+     */
+    private function returnBookingData(string $hotelId, string $roomNumber): JsonResponse
     {
+        try {
+            //Use cache to detect is the requested booking was persisted in this operation and return it
+            $cachedBooking = $this->cacheRepository->readEntity($hotelId, $roomNumber);
+            if (null !== $cachedBooking) {
+                return $this->responseHandler->createResponse($cachedBooking);
+            }
 
-        return $this->responseHandler->createResponse([]);
+            //Find in DB logic
+            $booking = $this->repository->findOneBy(['hotelId' => $hotelId, 'room' => $roomNumber]);
+
+            if (null !== $booking) {
+                $json = $this->bookingMapper->normalizeBookingToJSON($booking);
+                return $this->responseHandler->createResponse($json);
+            }
+
+            return $this->responseHandler->createSuccessResponse([]);
+        } catch (Exception $exception) {
+            $this->logger->error(sprintf("API return data fail: %s", $exception->getMessage()));
+            return $this->responseHandler->createErrorResponse($exception->getMessage());
+        }
     }
 }

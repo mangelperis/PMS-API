@@ -16,7 +16,7 @@ class ResponseHandler
      */
     public function createResponse($data, int $statusCode = Response::HTTP_OK): JsonResponse
     {
-        return new JsonResponse($data, $statusCode);
+        return new JsonResponse($data, $statusCode, [], true);
     }
 
     public function createSuccessResponse($data, $statusCode = Response::HTTP_OK, $headers = []): JsonResponse
@@ -27,7 +27,7 @@ class ResponseHandler
         ], $statusCode, $headers);
     }
 
-    public function createErrorResponse($message, $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR, $headers = []): Response
+    public function createErrorResponse($message, $statusCode = Response::HTTP_INTERNAL_SERVER_ERROR, $headers = []): JsonResponse
     {
         return new JsonResponse([
             'success' => false,
