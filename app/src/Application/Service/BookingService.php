@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\Service;
 
+use App\Application\Service\Handler\ResponseHandler;
 use App\Domain\Entity\Booking;
 use App\Domain\Repository\BookingRepository;
 use App\Domain\Service\PMStransformer;
@@ -14,6 +15,7 @@ use App\Infrastructure\Service\RedisCacheRepository;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
@@ -26,34 +28,39 @@ class BookingService
     private PMStransformer $transformer;
     private RedisCacheRepository $cacheRepository;
     private LoggerInterface $logger;
+    private ValidatorInterface $validator;
     private BookingMapper $bookingMapper;
     private BookingRepository $repository;
+    private ResponseHandler $responseHandler;
 
 
     public function __construct(
         LoggerInterface      $logger,
         RedisCacheRepository $cacheRepository,
+        ValidatorInterface   $validator,
         PMSApiFetch          $apiFetch,
         PMStransformer       $transformer,
         BookingMapper        $bookingMapper,
-        BookingRepository    $repository
+        BookingRepository    $repository,
+        ResponseHandler      $responseHandler,
     )
     {
         $this->logger = $logger;
         $this->cacheRepository = $cacheRepository;
+        $this->validator = $validator;
         $this->apiFetch = $apiFetch;
         $this->transformer = $transformer;
         $this->bookingMapper = $bookingMapper;
         $this->repository = $repository;
+        $this->responseHandler = $responseHandler;
     }
 
 
     /**
      * @param string $hotelId
      * @param string $roomNumber
-     * @return void
+     * @return JsonResponse
      * @throws TransportExceptionInterface
-     * @throws Exception
      */
     public function run(string $hotelId, string $roomNumber): JsonResponse
     {
@@ -62,8 +69,9 @@ class BookingService
         $dataSource = $this->processBookingResponse($response);
         $transformed = $this->transformBookingData($dataSource);
         //Attempt to Persist only when there's new content
-        $transformed ?? $persist = $this->persistBookingData($transformed);
-
+        if(null !== $transformed){
+            $persist = $this->persistBookingData($transformed);
+        }
         //Query Results always executed
         return $this->returnBookingData();
     }
@@ -176,6 +184,12 @@ class BookingService
             $timestamp = 0;
             foreach ($data as $booking) {
                 /** @var Booking $booking */
+                //Validate Entity Asserts
+                if (!$this->validator->validate($booking)) {
+                    $this->logger->notice(sprintf("Invalid Booking [%s]-[%s]", $booking->getLocator(), $booking->getHotelId()));
+                    continue;
+                }
+                //Persist
                 $result = $this->repository->save($booking);
 
                 if ($result) {
@@ -188,6 +202,7 @@ class BookingService
                         $this->cacheRepository->setLastCreatedTimestamp($timestamp);
                     }
                 }
+
             }
 
             return true;
@@ -201,6 +216,6 @@ class BookingService
     private function returnBookingData(): JsonResponse
     {
 
-
+        return $this->responseHandler->createResponse([]);
     }
 }
