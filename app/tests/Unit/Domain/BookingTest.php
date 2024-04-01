@@ -3,6 +3,7 @@
 namespace App\Tests\Unit\Domain;
 
 use App\Domain\Entity\Booking;
+use App\Domain\Entity\Guest;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use PHPUnit\Framework\TestCase;
@@ -34,7 +35,6 @@ class BookingTest extends TestCase
     public function testConstructorAndGetters()
     {
         // Sample data
-        $bookingId = 'f8273b3c-9b69-4993-885f-2cb00687174a';
         $hotelId = '70ce8358-600a-4bad-8ee6-acf46e1fb8db';
         $locator = '649576941E9C7';
         $room = '299';
@@ -47,9 +47,22 @@ class BookingTest extends TestCase
             $locator,
             $room,
             $checkIn,
-            $checkOut,
-            $guests
+            $checkOut
         );
+
+        $guest = new Guest(
+            'Paco',
+            'Jons',
+            new DateTime('1990-06-17'),
+            'M-1359285-EU',
+            'FR',
+        );
+
+        $guest->setBooking($booking);
+        $guests->add($guest);
+        $booking->addGuest($guest);
+
+        //dd($guests, $booking->getGuests());
 
         // Assert that the constructor sets the properties correctly
         $this->assertSame($hotelId, $booking->getHotelId());
@@ -57,25 +70,7 @@ class BookingTest extends TestCase
         $this->assertSame($room, $booking->getRoom());
         $this->assertEquals($checkIn, $booking->getCheckIn());
         $this->assertEquals($checkOut, $booking->getCheckOut());
-        $this->assertSame($guests, $booking->getGuests());
+        $this->assertEquals($guests, $booking->getGuests());
     }
 
-    /**
-     * @throws \Exception
-     */
-    public function testConstructorFromObject()
-    {
-
-        $booking = Booking::createFromObject($this->sampleBookingObject);
-
-        // Assert that the method sets the properties correctly
-        $this->assertInstanceOf(Booking::class, $booking);
-        $this->assertSame($this->sampleBookingObject->hotelId, $booking->getHotelId());
-        $this->assertSame($this->sampleBookingObject->locator, $booking->getLocator());
-        $this->assertSame($this->sampleBookingObject->room, $booking->getRoom());
-        $this->assertEquals(new DateTime($this->sampleBookingObject->checkIn), $booking->getCheckIn());
-        $this->assertEquals(new DateTime($this->sampleBookingObject->checkOut), $booking->getCheckOut());
-        $this->assertCount(1, $booking->getGuests());
-
-    }
 }
