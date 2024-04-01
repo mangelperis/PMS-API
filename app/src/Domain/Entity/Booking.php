@@ -19,6 +19,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\UniqueConstraint(name: 'booking_id', columns: ['booking_id'])]
 #[ORM\Index(columns: ['hotel_id'], name: 'hotel_id')]
 #[ORM\Index(columns: ['locator'], name: 'locator')]
+#[ORM\Index(columns: ['room'], name: 'room')]
 class Booking implements BookingInterface
 {
 
