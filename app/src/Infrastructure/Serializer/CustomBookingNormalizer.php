@@ -13,7 +13,9 @@ class CustomBookingNormalizer implements NormalizerInterface
 {
     private CustomGuestNormalizer $guestNormalizer;
 
-    public function __construct(CustomGuestNormalizer $guestNormalizer)
+    public function __construct(
+        CustomGuestNormalizer $guestNormalizer,
+    )
     {
         $this->guestNormalizer = $guestNormalizer;
     }
@@ -23,10 +25,10 @@ class CustomBookingNormalizer implements NormalizerInterface
      * @param $object
      * @param string|null $format
      * @param array $context
-     * @return array
+     * @return string
      * @throws ExceptionInterface
      */
-    public function normalize($object, string $format = null, array $context = []): array
+    public function normalize($object, string $format = null, array $context = []): string
     {
         /** @var Booking $booking */
         $booking = clone $object;
@@ -39,7 +41,7 @@ class CustomBookingNormalizer implements NormalizerInterface
             $normalizedGuests[] = $this->guestNormalizer->normalize($guest, 'array', [SerializerConstants::SERIALIZER_GROUP]);
         }
 
-        return [
+        $dto = [
             'bookingId' => $booking->getBookingId(),
             'hotel' => $booking->getHotelId(),
             'locator' => $booking->getLocator(),
@@ -50,6 +52,8 @@ class CustomBookingNormalizer implements NormalizerInterface
             'totalPax' => count($booking->getGuests()),
             'guests' => $normalizedGuests,
         ];
+
+        return json_encode($dto);
     }
 
     /**
@@ -72,12 +76,15 @@ class CustomBookingNormalizer implements NormalizerInterface
 
     public function supportsNormalization($data, string $format = null, array $context = []): bool
     {
-        return $data instanceof Booking;
+        return $data instanceof Booking && $format === 'json';
     }
 
     public function getSupportedTypes(?string $format): array
     {
         // Return the supported types for normalization
-        return [Booking::class];
+        return [
+            Booking::class => true,
+            'json' => true
+        ];
     }
 }

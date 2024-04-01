@@ -102,6 +102,10 @@ class Booking implements BookingInterface
             $booking->guests
         );
     }
+    public function getId(): int
+    {
+        return $this->id;
+    }
 
     /**
      * @return UuidInterface
@@ -159,10 +163,7 @@ class Booking implements BookingInterface
         return $this->guests;
     }
 
-    public function getId(): int
-    {
-        return $this->id;
-    }
+
 
     public function setCreated(DateTime $created): void
     {
@@ -172,6 +173,11 @@ class Booking implements BookingInterface
     public function getCreated(): DateTime
     {
         return $this->created;
+    }
+
+    public function getUpdated(): DateTime
+    {
+        return $this->updated;
     }
 }
 

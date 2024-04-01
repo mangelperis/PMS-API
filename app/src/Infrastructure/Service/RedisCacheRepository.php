@@ -43,12 +43,12 @@ class RedisCacheRepository
 
     /**
      * @param Booking $entity
+     * @param string $json
      * @return void
      */
-    public function storeEntity(Booking $entity): void
+    public function storeEntity(Booking $entity, string $json): void
     {
         $key = $this->generateKey($entity->getHotelId(), $entity->getRoom());
-        $json = json_encode($entity);
         $this->redis->set($key, $json);
     }
 
@@ -57,18 +57,16 @@ class RedisCacheRepository
      * @param string $room
      * @return Booking|null
      */
-    public function readEntity(string $hotelId, string $room): ?Booking
+    public function readEntity(string $hotelId, string $room): ?string
     {
         $key = $this->generateKey($hotelId, $room);
         $serializedEntity = $this->redis->get($key);
         if (!$serializedEntity) {
             return null;
         }
-        // Deserialize the entity
-        $entity = json_decode($serializedEntity, true);
         // Delete the entity from Redis
         $this->redis->del($key);
-        return $entity;
+        return $serializedEntity;
     }
 
     /**

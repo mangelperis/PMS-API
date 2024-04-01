@@ -23,18 +23,15 @@ services:
     #Predis - Redis
     Predis\Client:
         alias: snc_redis.default
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
     App\Application\Controller\:
         resource: '../src/Application/Controller/'
         tags: ['controller.service_arguments']
 
-
     App\Infrastructure\Serializer\CustomBookingNormalizer:
-        tags: ['serializer.normalizer']
-
-    App\Infrastructure\Serializer\CustomBookingDenormalizer:
-        tags: ['serializer.denormalizer']
+        tags: [ 'serializer.normalizer' ]
 
     App\Infrastructure\Serializer\CustomGuestNormalizer:
-        tags: ['serializer.normalizer']
+        tags: [ 'serializer.normalizer' ]
