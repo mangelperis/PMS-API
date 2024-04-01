@@ -8,8 +8,6 @@ use App\Domain\Entity\Booking;
 use App\Domain\Entity\Guest;
 use App\Infrastructure\Adapter\PMSBookingDTO;
 use App\Infrastructure\Serializer\CustomBookingDenormalizer;
-use App\Infrastructure\Serializer\CustomBookingNormalizer;
-use App\Infrastructure\Serializer\SerializerConstants;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -17,8 +15,6 @@ use Symfony\Component\Serializer\SerializerInterface;
 class BookingMapper
 {
     private SerializerInterface $serializer;
-    private CustomBookingDenormalizer $bookingDenormalizer;
-    private CustomBookingNormalizer $bookingNormalizer;
 
     public function __construct(
         SerializerInterface $serializer,
@@ -49,8 +45,6 @@ class BookingMapper
         );
         //Created_at same as the Booking one
         $guest->setCreated($dtoObject->getCreated());
-        $guests->add($guest);
-
 
         $newBooking = new Booking(
             $dtoObject->getHotelId(),
@@ -58,8 +52,13 @@ class BookingMapper
             $booking['room'],
             new DateTime($booking['check_in']),
             new DateTime($booking['check_out']),
-            $guests,
         );
+
+        //Manual tweak because persist cascade not working
+        $guest->setBooking($newBooking);
+        $guests->add($guest);
+        $newBooking->addGuest($guest);
+
 
         //Assign the created value as the source
         $newBooking->setCreated($dtoObject->getCreated());
@@ -72,7 +71,7 @@ class BookingMapper
      */
     public function normalizeBookingToJSON(Booking $booking): string
     {
-        return $this->serializer->serialize($booking, 'json', ['groups' => SerializerConstants::SERIALIZER_GROUP]);
+        return $this->serializer->serialize($booking, 'json');
     }
 
 }

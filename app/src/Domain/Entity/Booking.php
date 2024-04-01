@@ -58,7 +58,7 @@ class Booking implements BookingInterface
      * @var ArrayCollection<Guest>
      */
     #[Assert\Type(type: 'object')]
-    #[ORM\OneToMany(mappedBy: 'booking', targetEntity: 'App\Domain\Entity\Guest', cascade: ["persist", "remove"])]
+    #[ORM\OneToMany(mappedBy: 'booking', targetEntity: 'App\Domain\Entity\Guest', cascade: ['persist', 'remove'])]
     private Collection $guests;
 
     #[ORM\Column(name: 'created', type: 'datetime')]
@@ -73,8 +73,7 @@ class Booking implements BookingInterface
         string          $locator,
         string          $room,
         DateTime        $checkIn,
-        DateTime        $checkOut,
-        ArrayCollection $guests
+        DateTime        $checkOut
     )
     {
         $this->bookingId = Uuid::uuid4();
@@ -83,25 +82,9 @@ class Booking implements BookingInterface
         $this->room = $room;
         $this->checkIn = $checkIn;
         $this->checkOut = $checkOut;
-        $this->guests = $guests;
+        $this->guests = new ArrayCollection();
     }
 
-    /**
-     * @param object $booking
-     * @return self
-     * @throws \Exception
-     */
-    public static function createFromObject(object $booking): self
-    {
-        return new self(
-            $booking->hotelId,
-            $booking->locator,
-            $booking->room,
-            new DateTime($booking->checkIn),
-            new DateTime($booking->checkOut),
-            $booking->guests
-        );
-    }
     public function getId(): int
     {
         return $this->id;
@@ -178,6 +161,12 @@ class Booking implements BookingInterface
     public function getUpdated(): DateTime
     {
         return $this->updated;
+    }
+
+    public function addGuest(Guest $guest): void
+    {
+        $guest->setBooking($this);
+        $this->guests->add($guest);
     }
 }
 

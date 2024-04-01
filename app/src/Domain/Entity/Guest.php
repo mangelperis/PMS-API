@@ -50,11 +50,10 @@ class Guest
     private DateTime $updated;
 
 
-    #[Assert\Type(type: 'integer')]
     #[Assert\NotBlank]
     #[ORM\ManyToOne(targetEntity: 'App\Domain\Entity\Booking', inversedBy: 'guests')]
     #[ORM\JoinColumn(name: 'booking_id', referencedColumnName: 'id')]
-    private int $bookingId;//Better performance instead of associate the Object ref
+    private Booking $booking;
 
     public function __construct(
         string $name,
@@ -119,20 +118,20 @@ class Guest
     }
 
     /**
-     * @return int
+     * @return Booking
      */
-    public function getBookingId(): int
+    public function getBooking(): Booking
     {
-        return $this->bookingId;
+        return $this->booking;
     }
 
     /**
      * @param int $bookingId
      * @return void
      */
-    public function setBooking(int $bookingId): void
+    public function setBooking(Booking $booking): void
     {
-        $this->bookingId = $bookingId;
+        $this->booking = $booking;
     }
 
     /**
