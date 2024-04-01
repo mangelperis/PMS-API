@@ -16,6 +16,7 @@ class BookingController extends AbstractFOSRestController
 {
     const ROOM_PARAM_NAME = 'room';
     const HOTEL_PARAM_NAME = 'hotel';
+
     public function __construct(private readonly BookingService $bookingService, private ResponseHandler $responseHandler)
     {
 
@@ -25,13 +26,12 @@ class BookingController extends AbstractFOSRestController
      * @throws TransportExceptionInterface
      */
     #[Route('/booking', name: 'get_booking_by_room_and_hotel', methods: ['GET'])]
-
     public function call(Request $request): \Symfony\Component\HttpFoundation\JsonResponse
     {
         $roomNumber = $request->query->get(self::ROOM_PARAM_NAME);
         $hotelId = $request->query->get(self::HOTEL_PARAM_NAME);
 
-        if(null === $roomNumber || null === $hotelId){
+        if (null === $roomNumber || null === $hotelId) {
             return $this->responseHandler->createErrorResponse('Required parameter is missing', Response::HTTP_BAD_REQUEST);
         }
 
