@@ -64,18 +64,11 @@ class PMStransformer
                 new DateTime($object->created),
                 $object->signature,
             );
-
-            $timestamp = strtotime($booking['created']);
-
-            if ($timestamp > $lastTimestamp) {
-                $lastTimestamp = $timestamp;
-            }
         }
 
         return [
             'DTO' => $arrayDTO,
             'errors' => $errors,
-            'lastTimestamp' => $lastTimestamp
         ];
     }
 

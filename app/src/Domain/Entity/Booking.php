@@ -169,6 +169,11 @@ class Booking implements BookingInterface
     {
         $this->created = $created;
     }
+
+    public function getCreated(): DateTime
+    {
+        return $this->created;
+    }
 }
 
 

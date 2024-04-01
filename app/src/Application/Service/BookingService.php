@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Application\Service;
 
 use App\Domain\Entity\Booking;
+use App\Domain\Repository\BookingRepository;
 use App\Domain\Service\PMStransformer;
 use App\Infrastructure\Adapter\PMSBookingDTO;
 use App\Infrastructure\Mapper\BookingMapper;
@@ -12,6 +13,7 @@ use App\Infrastructure\Service\PMSApiFetch;
 use App\Infrastructure\Service\RedisCacheRepository;
 use Exception;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
@@ -25,6 +27,7 @@ class BookingService
     private RedisCacheRepository $cacheRepository;
     private LoggerInterface $logger;
     private BookingMapper $bookingMapper;
+    private BookingRepository $repository;
 
 
     public function __construct(
@@ -32,7 +35,8 @@ class BookingService
         RedisCacheRepository $cacheRepository,
         PMSApiFetch          $apiFetch,
         PMStransformer       $transformer,
-        BookingMapper        $bookingMapper
+        BookingMapper        $bookingMapper,
+        BookingRepository    $repository
     )
     {
         $this->logger = $logger;
@@ -40,6 +44,7 @@ class BookingService
         $this->apiFetch = $apiFetch;
         $this->transformer = $transformer;
         $this->bookingMapper = $bookingMapper;
+        $this->repository = $repository;
     }
 
 
@@ -50,18 +55,17 @@ class BookingService
      * @throws TransportExceptionInterface
      * @throws Exception
      */
-    public function run(string $hotelId, string $roomNumber): void
+    public function run(string $hotelId, string $roomNumber): JsonResponse
     {
         //ETL process
         $response = $this->fetchBookingData($hotelId, $roomNumber);
         $dataSource = $this->processBookingResponse($response);
         $transformed = $this->transformBookingData($dataSource);
         //Attempt to Persist only when there's new content
-        if(null !== $transformed){
-            $this->persistBookingData($transformed);
-        }
+        $transformed ?? $persist = $this->persistBookingData($transformed);
 
-
+        //Query Results always executed
+        return $this->returnBookingData();
     }
 
     /**
@@ -130,7 +134,7 @@ class BookingService
     {
         try {
             //Empty Source, no empty rooms, all sold!
-            if(!isset($data['total']) && !isset($data['bookings'])){
+            if (!isset($data['total']) && !isset($data['bookings'])) {
                 $this->logger->info("No empty rooms, all sold!");
                 return null;
             }
@@ -139,6 +143,7 @@ class BookingService
                 $this->logger->info(sprintf("Transforming [%d] bookings", $data['total']));
             }
 
+            //Transform source Data to DTO
             /** @var array<Booking> $bookings */
             $bookings = [];
             $transformer = ($this->transformer)($data['bookings']);
@@ -155,9 +160,8 @@ class BookingService
             foreach ($bookingsDTO as $dto) {
                 $bookings[] = $this->bookingMapper->denormalizeToBooking($dto);
             }
-            $lastTimestamp = $transformer['lastTimestamp'];
 
-            return ['entities' => $bookings, 'lastTimestamp' => $lastTimestamp];
+            return $bookings;
 
         } catch (Exception $e) {
             $this->logger->error(sprintf("API transform data fail: %s", $e->getMessage()));
@@ -168,16 +172,35 @@ class BookingService
 
     private function persistBookingData(array $data)
     {
-        foreach ($data['entities'] as $booking){
+        try {
+            $timestamp = 0;
+            foreach ($data as $booking) {
+                /** @var Booking $booking */
+                $result = $this->repository->save($booking);
 
+                if ($result) {
+                    $bookingTimestamp = $booking->getCreated()->getTimestamp();
+
+                    //Sets last timestamp logic, preventing failure of DB on the next iteration will remind status
+                    //"Incremental approach"
+                    if ($bookingTimestamp > $timestamp) {
+                        $timestamp = $bookingTimestamp;
+                        $this->cacheRepository->setLastCreatedTimestamp($timestamp);
+                    }
+                }
+            }
+
+            return true;
+        } catch (Exception $exception) {
+            $this->logger->error(sprintf("API persist data fail: %s", $exception->getMessage()));
+            return false;
         }
 
-        $this->cacheRepository->setLastCreatedTimestamp((int)$data['lastTimestamp']);
-        return null;
     }
 
-    private function returnBookingData()
+    private function returnBookingData(): JsonResponse
     {
+
 
     }
 }
