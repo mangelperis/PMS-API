@@ -75,7 +75,7 @@ class Booking implements BookingInterface
         string     $room,
         DateTime   $checkIn,
         DateTime   $checkOut,
-        Collection $guests
+        ArrayCollection $guests
     )
     {
         $this->bookingId = Uuid::uuid4();
