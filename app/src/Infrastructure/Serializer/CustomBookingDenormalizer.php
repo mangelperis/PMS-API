@@ -22,7 +22,6 @@ class CustomBookingDenormalizer implements DenormalizerInterface
     public function denormalize($data, string $type, string $format = null, array $context = []): Booking
     {
         //Validator after this call somewhere
-
         $dtoObject = (object)$data;
 
         /** @var object $data */
@@ -36,9 +35,14 @@ class CustomBookingDenormalizer implements DenormalizerInterface
         );
     }
 
-    public function supportsDenormalization($data, string $type, string $format = null): bool
+    public function supportsDenormalization($data, string $type, string $format = null, array $context = []): bool
     {
         return $type === Booking::class;
     }
 
+    public function getSupportedTypes(?string $format): array
+    {
+        // Return the supported types for normalization
+        return [Booking::class];
+    }
 }

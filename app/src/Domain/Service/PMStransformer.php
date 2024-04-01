@@ -20,7 +20,6 @@ class PMStransformer
         '49001' => '5ab1d247-19ea-4850-9242-2d3ffbbdb58d',
     ];
 
-
     /**
      * @throws Exception
      */
@@ -30,9 +29,8 @@ class PMStransformer
         $errors = [];
         $lastTimestamp = 0;
 
-        foreach ($data as $booking) {
+        foreach ($data as $key => $booking) {
             $loggerBookingId = $booking['booking']['locator'];
-
             //Check `created` timestamp is there
             if (null === $booking['created']) {
                 $errors[] = sprintf("Booking object -%s- missing `created`", $loggerBookingId);
@@ -45,9 +43,8 @@ class PMStransformer
                 continue;
             }
 
-
             //Use only the REQUIRED elements
-            $object = (object)($data);
+            $object = (object)($booking);
 
             //Create DTO object
             $arrayDTO[] = new PMSBookingDTO(

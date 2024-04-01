@@ -70,8 +70,14 @@ class CustomBookingNormalizer implements NormalizerInterface
         return $interval->days;
     }
 
-    public function supportsNormalization($data, string $format = null): bool
+    public function supportsNormalization($data, string $format = null, array $context = []): bool
     {
         return $data instanceof Booking;
+    }
+
+    public function getSupportedTypes(?string $format): array
+    {
+        // Return the supported types for normalization
+        return [Booking::class];
     }
 }

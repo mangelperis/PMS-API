@@ -24,8 +24,14 @@ class CustomGuestDenormalizer implements DenormalizerInterface
         );
     }
 
-    public function supportsDenormalization($data, string $type, string $format = null): bool
+    public function supportsDenormalization($data, string $type, string $format = null, array $context = []): bool
     {
         return $type === Guest::class;
+    }
+
+    public function getSupportedTypes(?string $format): array
+    {
+        // Return the supported types for normalization
+        return ['array'];
     }
 }

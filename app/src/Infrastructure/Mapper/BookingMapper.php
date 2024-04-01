@@ -4,11 +4,14 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Mapper;
 
-use App\API\DTO\BookingDTO;
 use App\Domain\Entity\Booking;
+use App\Domain\Entity\Guest;
+use App\Infrastructure\Adapter\PMSBookingDTO;
 use App\Infrastructure\Serializer\CustomBookingDenormalizer;
 use App\Infrastructure\Serializer\CustomBookingNormalizer;
 use App\Infrastructure\Serializer\SerializerConstants;
+use DateTime;
+use Doctrine\Common\Collections\ArrayCollection;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class BookingMapper
@@ -19,20 +22,42 @@ class BookingMapper
 
     public function __construct(
         SerializerInterface $serializer,
-
     )
     {
         $this->serializer = $serializer;
-
     }
 
-    /** Uses CustomBookingDenormalizer, Array to Entity
-     * @param array $array
+    /** Uses CustomBookingDenormalizer, DTO to Entity
+     * @param object $dtoObject
      * @return Booking
+     * @throws \Exception
      */
-    public function denormalizeToBooking(array $array): Booking
+    public function denormalizeToBooking(object $dtoObject): Booking
     {
-        return $this->serializer->deserialize($array, Booking::class, 'array');
+        /** @var PMSBookingDTO $dtoObject */
+        $booking = $dtoObject->getBooking();
+
+        //Create collection<Guest>
+        $guests = new ArrayCollection();
+        $guestData = (object)$dtoObject->getGuest();
+        $guest = new Guest(
+            $guestData->name,
+            $guestData->lastname,
+            new DateTime($guestData->birthdate),
+            $guestData->passport,
+            $guestData->country,
+        );
+        $guests->add($guest);
+
+
+        return new Booking(
+            $dtoObject->getHotelId(),
+            $booking['locator'],
+            $booking['room'],
+            new DateTime($booking['check_in']),
+            new DateTime($booking['check_out']),
+            $guests
+        );
     }
 
     /** Uses CustomBookingNormalizer, Entity to JSON filtering the defined groups in serializer/entity/Booking.yaml

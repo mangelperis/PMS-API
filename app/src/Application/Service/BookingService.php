@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace App\Application\Service;
 
+use App\Domain\Entity\Booking;
 use App\Domain\Service\PMStransformer;
+use App\Infrastructure\Adapter\PMSBookingDTO;
+use App\Infrastructure\Mapper\BookingMapper;
 use App\Infrastructure\Service\PMSApiFetch;
 use App\Infrastructure\Service\RedisCacheRepository;
 use Exception;
@@ -21,6 +24,7 @@ class BookingService
     private PMStransformer $transformer;
     private RedisCacheRepository $cacheRepository;
     private LoggerInterface $logger;
+    private BookingMapper $bookingMapper;
 
 
     public function __construct(
@@ -28,12 +32,14 @@ class BookingService
         RedisCacheRepository $cacheRepository,
         PMSApiFetch          $apiFetch,
         PMStransformer       $transformer,
+        BookingMapper        $bookingMapper
     )
     {
         $this->logger = $logger;
         $this->cacheRepository = $cacheRepository;
         $this->apiFetch = $apiFetch;
         $this->transformer = $transformer;
+        $this->bookingMapper = $bookingMapper;
     }
 
 
@@ -49,7 +55,9 @@ class BookingService
         //ETL process
         $response = $this->fetchBookingData($hotelId, $roomNumber);
         $dataSource = $this->processBookingResponse($response);
-        $stay = $this->transformBookingData($dataSource);
+        $transformed = $this->transformBookingData($dataSource);
+        //Persist data, normalize
+
 
 
     }
@@ -117,12 +125,37 @@ class BookingService
      */
     private function transformBookingData(array $data): ?array
     {
-        $bookingsDTO = ($this->transformer)($data);
+        try {
+            if (null !== $data['total']) {
+                $this->logger->info(sprintf("Transforming [%d] bookings", $data['total']));
+            }
 
-        //To do
+            /** @var array<Booking> $bookings */
+            $bookings = [];
+            $transformer = ($this->transformer)($data['bookings']);
 
+            $errors = $transformer['errors'];
 
-        return null;
+            /** @var string $error */
+            foreach ($errors as $error) {
+                $this->logger->warning(sprintf("Transformer error: %s", $error));
+            }
+
+            $bookingsDTO = $transformer['DTO'];
+
+            /** @var PMSBookingDTO $dto */
+            foreach ($bookingsDTO as $dto) {
+                $bookings[] = $this->bookingMapper->denormalizeToBooking($dto);
+            }
+            $lastTimestamp = $transformer['lastTimestamp'];
+
+            return $bookings;
+
+        } catch (Exception $e) {
+            $this->logger->error(sprintf("API transform data fail: %s", $e->getMessage()));
+            throw new Exception('Error while transforming data');
+        }
+
     }
 
     private function returnBookingData()
