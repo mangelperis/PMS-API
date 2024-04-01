@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Unit\Domain;
+namespace App\Tests\Unit\Domain\Entity;
 
 use App\Domain\Entity\Guest;
 use PHPUnit\Framework\TestCase;

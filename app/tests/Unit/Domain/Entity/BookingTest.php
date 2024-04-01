@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Tests\Unit\Domain;
+namespace App\Tests\Unit\Domain\Entity;
 
 use App\Domain\Entity\Booking;
 use App\Domain\Entity\Guest;
@@ -14,22 +14,7 @@ class BookingTest extends TestCase
 
     public function setUp(): void
     {
-        $this->sampleBookingObject = (object)[
-            'hotelId' => '70ce8358-600a-4bad-8ee6-acf46e1fb8db',
-            'locator' => '649576941E9C7',
-            'room' => '299',
-            'checkIn' => '2023-06-23',
-            'checkOut' => '2023-06-30',
-            'guests' => new ArrayCollection([
-                (object)[
-                    'name' => 'Jesús',
-                    'lastname' => 'Delagarza',
-                    'birthdate' => '1974-08-05',
-                    'passport' => 'MF-1645022-OZ',
-                    'country' => 'MF',
-                ],
-            ]),
-        ];
+        parent::setUp();
     }
 
     public function testConstructorAndGetters()
@@ -61,8 +46,6 @@ class BookingTest extends TestCase
         $guest->setBooking($booking);
         $guests->add($guest);
         $booking->addGuest($guest);
-
-        //dd($guests, $booking->getGuests());
 
         // Assert that the constructor sets the properties correctly
         $this->assertSame($hotelId, $booking->getHotelId());

@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Tests\Unit\Repository;
+namespace App\Tests\Unit\Domain\Repository;
 
 use App\Domain\Entity\Booking;
 use App\Domain\Repository\BookingRepository;
 use DateTime;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use PHPUnit\Framework\TestCase;
