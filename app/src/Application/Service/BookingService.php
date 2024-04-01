@@ -56,7 +56,10 @@ class BookingService
         $response = $this->fetchBookingData($hotelId, $roomNumber);
         $dataSource = $this->processBookingResponse($response);
         $transformed = $this->transformBookingData($dataSource);
-        //Persist data, normalize
+        //Attempt to Persist only when there's new content
+        if(null !== $transformed){
+            $this->persistBookingData($transformed);
+        }
 
 
     }
@@ -101,6 +104,7 @@ class BookingService
     {
         try {
             $content = $response->getContent();
+
             $data = json_decode($content, true);
 
             if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
@@ -125,6 +129,12 @@ class BookingService
     private function transformBookingData(array $data): ?array
     {
         try {
+            //Empty Source, no empty rooms, all sold!
+            if(!isset($data['total']) && !isset($data['bookings'])){
+                $this->logger->info("No empty rooms, all sold!");
+                return null;
+            }
+
             if (null !== $data['total']) {
                 $this->logger->info(sprintf("Transforming [%d] bookings", $data['total']));
             }
@@ -156,9 +166,14 @@ class BookingService
 
     }
 
-    private function persistBookingData()
+    private function persistBookingData(array $data)
     {
+        foreach ($data['entities'] as $booking){
 
+        }
+
+        $this->cacheRepository->setLastCreatedTimestamp((int)$data['lastTimestamp']);
+        return null;
     }
 
     private function returnBookingData()
