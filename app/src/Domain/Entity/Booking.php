@@ -61,11 +61,11 @@ class Booking implements BookingInterface
     #[ORM\OneToMany(targetEntity: 'App\Domain\Entity\Guest', mappedBy: 'booking', cascade:["persist", "remove"])]
     private ArrayCollection $guests;
 
+    #[ORM\Column(name: 'created', type: 'datetime')]
     #[Gedmo\Timestampable(on: 'create')]
-    #[ORM\Column(name: 'created', type: Types::DATETIME_MUTABLE)]
     private DateTime $created;
+    #[ORM\Column(type: 'datetime')]
     #[Gedmo\Timestampable(on: 'update')]
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private DateTime $updated;
 
     public function __construct(

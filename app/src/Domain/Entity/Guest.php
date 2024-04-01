@@ -42,11 +42,11 @@ class Guest
     #[ORM\Column(type: 'string', length: 2)]
     private string $country;
 
+    #[ORM\Column(name: 'created', type: 'datetime')]
     #[Gedmo\Timestampable(on: 'create')]
-    #[ORM\Column(name: 'created', type: Types::DATETIME_MUTABLE)]
     private DateTime $created;
+    #[ORM\Column(type: 'datetime')]
     #[Gedmo\Timestampable(on: 'update')]
-    #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private DateTime $updated;
 
 
