@@ -59,7 +59,7 @@ class BookingMapper
             $guests,
         );
 
-        $newBooking->setCreated(new DateTime($booking['created']));
+        $newBooking->setCreated($dtoObject->getCreated());
         return $newBooking;
     }
 

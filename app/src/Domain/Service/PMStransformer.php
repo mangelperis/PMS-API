@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Service;
 
+use App\Domain\Entity\Validation\Signature;
 use App\Infrastructure\Adapter\PMSBookingDTO;
 use DateTime;
 use Exception;
@@ -11,7 +12,7 @@ use Exception;
 class PMStransformer
 {
     //PMS Input keys to map
-    public const PMS_REQUIRED_KEYS = ['hotel_id', 'booking', 'guest'];
+    public const PMS_REQUIRED_KEYS = ['hotel_id', 'booking', 'guest','created','signature'];
     //Source ID to Destination ID
     public const HOTEL_ID_MAP = [
         '36001' => '70ce8358-600a-4bad-8ee6-acf46e1fb8db',
@@ -31,15 +32,23 @@ class PMStransformer
 
         foreach ($data as $key => $booking) {
             $loggerBookingId = $booking['booking']['locator'];
-            //Check `created` timestamp is there
-            if (null === $booking['created']) {
-                $errors[] = sprintf("Booking object -%s- missing `created`", $loggerBookingId);
+            $roomForSignature = $booking['booking']['room'];
+            $signature = $booking['signature'];
+
+            //Check REQUIRED keys are there, skip and log the ones it doesn't
+            if (!$this->validateKeys($booking)) {
+                $errors[] = sprintf("Booking object -%s- missing `REQUIRED KEYS`", $loggerBookingId);
                 continue;
             }
 
-            //Check REQUIRED keys are there
-            if (!$this->validateKeys($booking)) {
-                $errors[] = sprintf("Booking object -%s- missing `REQUIRED KEYS`", $loggerBookingId);
+            if (!Signature::verifySignature($loggerBookingId, $roomForSignature, $signature)) {
+                $errors[] = sprintf("Booking object -%s- missing valid `signature`", $loggerBookingId);
+                continue;
+            }
+
+            //Check `created` timestamp is there
+            if (null === $booking['created']) {
+                $errors[] = sprintf("Booking object -%s- missing `created`", $loggerBookingId);
                 continue;
             }
 

@@ -59,7 +59,6 @@ class BookingService
         //Persist data, normalize
 
 
-
     }
 
     /**
@@ -133,7 +132,6 @@ class BookingService
             /** @var array<Booking> $bookings */
             $bookings = [];
             $transformer = ($this->transformer)($data['bookings']);
-
             $errors = $transformer['errors'];
 
             /** @var string $error */
@@ -149,12 +147,17 @@ class BookingService
             }
             $lastTimestamp = $transformer['lastTimestamp'];
 
-            return $bookings;
+            return ['entities' => $bookings, 'lastTimestamp' => $lastTimestamp];
 
         } catch (Exception $e) {
             $this->logger->error(sprintf("API transform data fail: %s", $e->getMessage()));
             throw new Exception('Error while transforming data');
         }
+
+    }
+
+    private function persistBookingData()
+    {
 
     }
 
