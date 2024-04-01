@@ -47,6 +47,8 @@ class BookingMapper
             $guestData->passport,
             $guestData->country,
         );
+        //Created_at same as the Booking one
+        $guest->setCreated($dtoObject->getCreated());
         $guests->add($guest);
 
 
@@ -59,6 +61,7 @@ class BookingMapper
             $guests,
         );
 
+        //Assign the created value as the source
         $newBooking->setCreated($dtoObject->getCreated());
         return $newBooking;
     }

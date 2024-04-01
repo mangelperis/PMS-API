@@ -135,4 +135,14 @@ class Guest
     {
         $this->bookingId = $bookingId;
     }
+
+    /**
+     * @param DateTime $created
+     * @return void
+     */
+    public function setCreated(DateTime $created):void
+    {
+        $this->created = $created;
+    }
+
 }
