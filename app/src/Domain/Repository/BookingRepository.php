@@ -14,12 +14,9 @@ class BookingRepository extends EntityRepository implements BookingRepositoryInt
 {
     private EntityManagerInterface $entityManager;
 
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        ClassMetadata          $class
-    )
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        parent::__construct($entityManager, $class);
+        parent::__construct($entityManager, $entityManager->getClassMetadata(Booking::class));
         $this->entityManager = $entityManager;
     }
 

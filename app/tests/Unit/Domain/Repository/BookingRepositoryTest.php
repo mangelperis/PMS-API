@@ -20,8 +20,12 @@ class BookingRepositoryTest extends TestCase
         parent::setUp();
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
         $classMetadata = $this->createMock(ClassMetadata::class);
+        $this->entityManager->expects($this->once())
+            ->method('getClassMetadata')
+            ->with(Booking::class)
+            ->willReturn($classMetadata);
 
-        $this->bookingRepository = new BookingRepository($this->entityManager, $classMetadata);
+        $this->bookingRepository = new BookingRepository($this->entityManager);
     }
 
     public function testSave(): void
