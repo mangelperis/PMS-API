@@ -24,7 +24,6 @@ class Booking implements BookingInterface
 {
 
     #[Assert\Type(type: 'integer')]
-    #[Assert\NotBlank]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'AUTO')]
     #[ORM\Column(type: 'integer')]
@@ -33,7 +32,7 @@ class Booking implements BookingInterface
     #[Assert\NotBlank]
     #[ORM\Column(type: 'uuid')]
     private UuidInterface $bookingId;
-    #[Assert\Type(type: 'integer')]
+    #[Assert\Type(type: 'string')]
     #[Assert\Choice(callback: [BookingId::class, 'getValidHotelId'])]
     #[Assert\NotBlank]
     #[ORM\Column(type: 'string')]
@@ -46,11 +45,11 @@ class Booking implements BookingInterface
     #[Assert\NotBlank]
     #[ORM\Column(type: 'string')]
     private string $room;
-    #[Assert\Date]
+    #[Assert\Type(type: 'datetime')]
     #[Assert\NotBlank]
     #[ORM\Column(type: 'datetime')]
     private DateTime $checkIn;
-    #[Assert\Date]
+    #[Assert\Type(type: 'datetime')]
     #[Assert\NotBlank]
     #[ORM\Column(type: 'datetime')]
     private DateTime $checkOut;
@@ -58,7 +57,7 @@ class Booking implements BookingInterface
     /**
      * @var ArrayCollection<Guest>
      */
-    #[Assert\Type(type: 'array')]
+    #[Assert\Type(type: 'object')]
     #[ORM\OneToMany(targetEntity: 'App\Domain\Entity\Guest', mappedBy: 'booking', cascade:["persist", "remove"])]
     private ArrayCollection $guests;
 

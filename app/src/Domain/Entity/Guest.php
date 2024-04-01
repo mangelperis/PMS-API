@@ -16,7 +16,6 @@ use Gedmo\Mapping\Annotation as Gedmo;
 class Guest
 {
     #[Assert\Type(type: 'integer')]
-    #[Assert\NotBlank]
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'AUTO')]
     #[ORM\Column(type: 'integer')]
