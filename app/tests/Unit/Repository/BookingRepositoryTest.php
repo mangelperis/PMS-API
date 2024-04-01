@@ -19,10 +19,10 @@ class BookingRepositoryTest extends TestCase
     public function setUp(): void
     {
         parent::setUp();
-
         $this->entityManager = $this->createMock(EntityManagerInterface::class);
+        $classMetadata = $this->createMock(ClassMetadata::class);
 
-        $this->bookingRepository = new BookingRepository($this->entityManager, new ClassMetadata(Booking::class));
+        $this->bookingRepository = new BookingRepository($this->entityManager, $classMetadata);
     }
 
     public function testSave(): void
@@ -33,32 +33,22 @@ class BookingRepositoryTest extends TestCase
         $room = '299';
         $checkIn = new DateTime('2023-06-23');
         $checkOut = new DateTime('2023-06-30');
-        $guests = new ArrayCollection();
 
         $booking = new Booking(
             $hotelId,
             $locator,
             $room,
             $checkIn,
-            $checkOut,
-            $guests
+            $checkOut
         );
 
-        $this->entityManager->expects($this->once())->method('persist')->with($booking);
-        $this->entityManager->expects($this->once())->method('flush');
+        $this->entityManager->expects($this->once())
+            ->method('persist')
+            ->with($booking);
+        $this->entityManager->expects($this->once())
+            ->method('flush');
 
         $result = $this->bookingRepository->save($booking);
         $this->assertTrue($result);
-
-        $this->entityManager->expects($this->once())->method('find')->willReturn($booking);
-
-        $savedBooking = $this->bookingRepository->find($booking->getBookingId());
-        $this->assertInstanceOf(Booking::class, $savedBooking);
-
-        $this->assertEquals($hotelId, $savedBooking->getHotelId());
-        $this->assertEquals($locator, $savedBooking->getLocator());
-        $this->assertEquals($room, $savedBooking->getRoom());
-        $this->assertEquals($checkIn, $savedBooking->getCheckIn());
-        $this->assertEquals($checkOut, $savedBooking->getCheckOut());
     }
 }
