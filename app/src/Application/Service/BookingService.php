@@ -61,28 +61,27 @@ class BookingService
      * @param string $roomNumber
      * @return JsonResponse
      * @throws TransportExceptionInterface
+     * @throws Exception
      */
     public function run(string $hotelId, string $roomNumber): JsonResponse
     {
         //ETL process
-        $response = $this->fetchBookingData($hotelId, $roomNumber);
+        $response = $this->fetchBookingData();
         $dataSource = $this->processBookingResponse($response);
         $transformed = $this->transformBookingData($dataSource);
         //Attempt to Persist only when there's new content
-        if(null !== $transformed){
-            $persist = $this->persistBookingData($transformed);
+        if (null !== $transformed) {
+            $persist = $this->persistBookingData($transformed, $hotelId, $roomNumber);
         }
         //Query Results always executed
         return $this->returnBookingData();
     }
 
     /**
-     * @param string $hotelId
-     * @param string $roomNumber
      * @return array|null
-     * @throws Exception|TransportExceptionInterface
+     * @throws TransportExceptionInterface
      */
-    private function fetchBookingData(string $hotelId, string $roomNumber): ?ResponseInterface
+    private function fetchBookingData(): ?ResponseInterface
     {
         try {
             //Using cache system as trigger, the very first time the KEY won't exist in Redis (null)
@@ -178,7 +177,7 @@ class BookingService
 
     }
 
-    private function persistBookingData(array $data)
+    private function persistBookingData(array $data, string $hotelId, string $roomNumber)
     {
         try {
             $timestamp = 0;
@@ -200,6 +199,11 @@ class BookingService
                     if ($bookingTimestamp > $timestamp) {
                         $timestamp = $bookingTimestamp;
                         $this->cacheRepository->setLastCreatedTimestamp($timestamp);
+                    }
+
+                    //Set on system cache the requested API data if matches, to prevent query the database again later
+                    if ($booking->getHotelId() === $hotelId && $booking->getRoom() === $roomNumber) {
+                        $this->cacheRepository->storeEntity($booking);
                     }
                 }
 
