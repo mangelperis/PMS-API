@@ -50,14 +50,17 @@ class BookingMapper
         $guests->add($guest);
 
 
-        return new Booking(
+        $newBooking = new Booking(
             $dtoObject->getHotelId(),
             $booking['locator'],
             $booking['room'],
             new DateTime($booking['check_in']),
             new DateTime($booking['check_out']),
-            $guests
+            $guests,
         );
+
+        $newBooking->setCreated(new DateTime($booking['created']));
+        return $newBooking;
     }
 
     /** Uses CustomBookingNormalizer, Entity to JSON filtering the defined groups in serializer/entity/Booking.yaml
