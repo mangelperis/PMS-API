@@ -8,7 +8,6 @@ use App\Domain\Entity\Validation\BookingId;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Gedmo\Mapping\Annotation as Gedmo;
 use Ramsey\Uuid\Uuid;
@@ -18,8 +17,8 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Entity(repositoryClass: 'App\Domain\Repository\BookingRepository')]
 #[ORM\Table(name: 'bookings')]
 #[ORM\UniqueConstraint(name: 'booking_id', columns: ['booking_id'])]
-#[ORM\Index(name: 'hotel_id', columns: ['hotel_id'])]
-#[ORM\Index(name: 'locator', columns: ['locator'])]
+#[ORM\Index(columns: ['hotel_id'], name: 'hotel_id')]
+#[ORM\Index(columns: ['locator'], name: 'locator')]
 class Booking implements BookingInterface
 {
 
@@ -58,8 +57,8 @@ class Booking implements BookingInterface
      * @var ArrayCollection<Guest>
      */
     #[Assert\Type(type: 'object')]
-    #[ORM\OneToMany(targetEntity: 'App\Domain\Entity\Guest', mappedBy: 'booking', cascade:["persist", "remove"])]
-    private ArrayCollection $guests;
+    #[ORM\OneToMany(mappedBy: 'booking', targetEntity: 'App\Domain\Entity\Guest', cascade: ["persist", "remove"])]
+    private Collection $guests;
 
     #[ORM\Column(name: 'created', type: 'datetime')]
     #[Gedmo\Timestampable(on: 'create')]
@@ -69,11 +68,11 @@ class Booking implements BookingInterface
     private DateTime $updated;
 
     public function __construct(
-        string     $hotelId,
-        string     $locator,
-        string     $room,
-        DateTime   $checkIn,
-        DateTime   $checkOut,
+        string          $hotelId,
+        string          $locator,
+        string          $room,
+        DateTime        $checkIn,
+        DateTime        $checkOut,
         ArrayCollection $guests
     )
     {
@@ -164,7 +163,7 @@ class Booking implements BookingInterface
         return $this->id;
     }
 
-    public function setCreated(DateTime $created):void
+    public function setCreated(DateTime $created): void
     {
         $this->created = $created;
     }
