@@ -141,8 +141,9 @@ The following key features are implemented
 ***
 
 ## Getting Started
-Copy or rename the `.env.dist` file to an environment variable file and edit the entries to your needs:
+Copy or rename the `.env.dist` files (for docker and symfony) to an environment variable file and edit the entries to your needs:
 ```
+cp ./app/.env.dist .env
 cp ./docker/.env.dist .env
 ```
 ### Run using composer
