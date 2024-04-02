@@ -58,6 +58,15 @@ services:
         restart: always
         networks:
             - pms
+    adminer:
+        env_file:
+            - .env
+        container_name: "adminer"
+        image: adminer
+        ports:
+            - "8080:8080"
+        networks:
+            - pms
 volumes:
     redis_data:
 networks:
