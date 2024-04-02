@@ -180,8 +180,13 @@ Alternatively to the use of `composer`, you can directly build & run the app by 
 docker-compose up -d --build
 ```
 
-#### NOTE
-After booting the container, you can use this command to enter inside it and execute commands (the container's name is defined in the _**docker-compose.yml**_ file):
+#### IMPORTANT
+After booting the container, run `composer install` from outside or inside the container.
+``
+docker exec -t php-fpm composer install
+``
+
+You can use this command to enter inside it and execute commands (the container's name is defined in the _**docker-compose.yml**_ file):
 ```
 docker exec -it $container_name bash
 ```
