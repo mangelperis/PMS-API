@@ -16,6 +16,7 @@ class BookingIntegrationTest extends WebTestCase
     const HOTEL_ID = '70ce8358-600a-4bad-8ee6-acf46e1fb8db';
     const ROOM = '298';
 
+    //HTTP INTEGRATION
     public function testBookingIntegration(): void
     {
         $url = sprintf("/api/booking?hotel=%s&room=%s", self::HOTEL_ID, self::ROOM);
@@ -40,6 +41,7 @@ class BookingIntegrationTest extends WebTestCase
         $this->assertNotNull($booking);
     }
 
+    //UNIT VALID PARAMS
     public function testCallWithValidParameters(): void
     {
         $client = static::createClient();
@@ -51,6 +53,7 @@ class BookingIntegrationTest extends WebTestCase
         $this->assertResponseIsSuccessful();
     }
 
+    //UNIT INVALID PARAMS
     public function testCallWithMissingParameters(): void
     {
         $client = static::createClient();
