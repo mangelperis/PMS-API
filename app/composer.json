@@ -94,6 +94,9 @@
         ],
         "test": [
             "docker exec -t php-fpm vendor/bin/phpunit --verbose"
+        ],
+        "del-timestamp": [
+            "docker exec -t redis redis-cli del pms:booking:created"
         ]
     },
     "conflict": {

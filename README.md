@@ -11,7 +11,7 @@
 - [Getting Started](#getting-started)
   - [Run using composer](#run-using-composer)
   - [Run using docker](#run-using-docker)
-    - [Docker exec](#note)
+    - [Next steps](#important)
 - [How it works?](#how-it-works)
   - [API](#api)
   - [PHPUnit Testing](#phpunit-testing)
@@ -163,6 +163,7 @@ composer run [
     cache-clear       --- Execute Symfony clear cache command.
     stan              --- Execute PHPStan analyse command.
     test              --- Execute PHPUnit test cases.
+    del-timestamp     --- Delete Redis timestamp key.
 ]
 ```
 
@@ -182,9 +183,18 @@ docker-compose up -d --build
 
 #### IMPORTANT
 After booting the container, run `composer install` from outside or inside the container.
-``
+```
 docker exec -t php-fpm composer install
-``
+```
+Then run the database migrations to create the mysql structure for both **dev** and **test** environments.
+```
+docker exec -t php-fpm php bin/console doctrine:migrations:migrate --env=dev --no-interaction
+```
+
+```
+docker exec -t php-fpm php bin/console doctrine:database:create --env=test --no-interaction
+docker exec -t php-fpm php bin/console doctrine:migrations:migrate --env=test --no-interaction
+```
 
 You can use this command to enter inside it and execute commands (the container's name is defined in the _**docker-compose.yml**_ file):
 ```
@@ -222,9 +232,7 @@ Provided endpoint is:
  ------------------------------- -------- ---------------------------- --------------------------------
   get_booking_by_room_and_hotel   GET       /api/booking?hotel=&room=    Returns the requested booking
  ------------------------------- -------- ---------------------------- --------------------------------
-
 ```
-
 
 #### PHPUnit Testing
 Additionally, run all the tests available using (target **php-fpm** container):
@@ -235,6 +243,14 @@ or
 ```
 composer test
 ```
+
+**Important:** both dev and test environment use the same Redis service, this means both will set the same timestamp key.
+Keep that in mind when running the tests, you should delete the timestamp key after to do not conflict with the dev environment.
+
+```
+docker exec -t redis redis-cli del pms:booking:created
+```
+
 ***
 
 #### xDebug debugger
@@ -263,5 +279,3 @@ accordingly.
 
 ## Troubleshooting
 Nothing else for now!
-
-
