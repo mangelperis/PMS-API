@@ -28,14 +28,14 @@ active reservation and retrieve its data in the following format:
   "hotel_id": "49001",
   "hotel_name": "Hotel con ID Externo 49001",
   "guest": {
-    "name": "Juan",
-    "lastname": "Madrigal",
-    "birthdate": "1999-12-06",
-    "passport": "WF-1495889-GR",
+    "name": "John",
+    "lastname": "Doe",
+    "birthdate": "1900-01-01",
+    "passport": "13charspassport",
     "country": "ES"
   },
   "booking": {
-    "locator": "61F80321790C5",
+    "locator": "...locator...",
     "room": "291",
     "check_in": "2022-01-31",
     "check_out": "2022-02-08",
