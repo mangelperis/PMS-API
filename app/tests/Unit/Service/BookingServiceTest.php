@@ -175,7 +175,7 @@ class BookingServiceTest extends TestCase
             ->method('setLastCreatedTimestamp');
 
         // Database fetch
-        $this->repository->expects($this->once())
+        $this->repository->expects($this->atLeastOnce())
             ->method('findOneBy')
             ->with(['hotelId' => $hotelId, 'room' => $room])
             ->willReturn($booking);

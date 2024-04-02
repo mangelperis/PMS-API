@@ -196,7 +196,17 @@ class BookingService
                     $this->logger->notice(sprintf("Invalid Booking [%s]-[%s]", $booking->getLocator(), $booking->getHotelId()));
                     continue;
                 }
-                //Persist
+                //Persist if it doesn't exist "ON duplicate UPDATE" would be ideal
+                /** @var Booking $existingBooking */
+                $existingBooking = $this->repository->findOneBy(['hotelId' => $booking->getHotelId(), 'room' => $booking->getRoom()]);
+
+                // Already exists skip
+                if(null !== $existingBooking){
+                    //Consider to update the Booking Details here...
+                    $this->logger->notice(sprintf("Booking w/ [%s]-[%s] already exists", $booking->getHotelId(), $booking->getRoom()));
+                    continue;
+                }
+
                 $result = $this->repository->save($booking);
 
                 //When saved OK
