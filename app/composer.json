@@ -91,6 +91,9 @@
         ],
         "stan": [
             "docker exec -t php-fpm vendor/bin/phpstan analyse"
+        ],
+        "test": [
+            "docker exec -t php-fpm vendor/bin/phpunit --verbose"
         ]
     },
     "conflict": {
