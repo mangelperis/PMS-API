@@ -94,6 +94,7 @@ The following key features are implemented
 #### Good practices
 * Manual logging and generic Exceptions catching during the process.
 * Mandatory parameters `hotel` and `room` for the endpoint call.
+* Having both `id` and `uuid` fields allows easier data manipulation in the database and for frontend reference between objects.
   
 #### Logic
 * Transform source data to DTO, and then denormalize it with a serializer.
@@ -110,7 +111,9 @@ The following key features are implemented
 * It would be interesting to keep stored somewhere the original data source booking from PMS, maybe in another NoSQL database like Elastic.
 * The timestamp column `created` is not used for its original purpose, which would be the created *datetime* of the row record. Instead, the `created` from the data source is being stored in that field.
 * Some logic from the service, like the one for the data storage, could be transferred to the infrastructure layer in an adapter, it wasn't done to not add extra complexity.
+* An output **DTO** should be used to return data results in the **CustomBookingNormalizer**, to standardize the desired output against any client.
 * Some **constants** defined should be retrieved from the cache system, database, or the `.env`, so they would be easier to set on demand. For example, the mapper of source `hotel_id` to desired format destination.
+* It would be interesting to add the [Json-Schema](https://github.com/justinrainbow/json-schema) validation for the expected source data to have a 1st layer filter instead of the ones that are checked on the code.
 
 ***
 
