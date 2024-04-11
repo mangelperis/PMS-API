@@ -91,7 +91,7 @@ class BookingServiceTest extends TestCase
 
         $jsonResponse = <<<JSON
             {
-                "bookingId": "2f648634-25d9-41e5-bd3c-12c4ae5ccf42",
+                "bookingId": "AUTOUUID",
                 "hotel": "70ce8358-600a-4bad-8ee6-acf46e1fb8db",
                 "locator": "65FD55D5021F3",
                 "room": "298",
@@ -183,12 +183,21 @@ class BookingServiceTest extends TestCase
         // JsonResponse handler
         $this->responseHandler->expects($this->once())
             ->method('createResponse')
-            ->willReturn(new JsonResponse());
+            ->willReturn(new JsonResponse($jsonResponse, 200, [], true));
 
         // Exec run
         $response = $this->bookingService->run($hotelId, $room);
 
+        //Response if JsonResponse
         $this->assertInstanceOf(JsonResponse::class, $response);
+
+        //Content matches the input source
+        $this->assertEquals($jsonResponse, $response->getContent());
+
+        //Specific keys content
+        $content = json_decode($response->getContent(), true);
+        $this->assertEquals($hotelId, $content['hotel']);
+        $this->assertEquals($room, $content['room']);
     }
 
 }
