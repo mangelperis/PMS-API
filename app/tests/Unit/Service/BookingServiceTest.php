@@ -8,8 +8,8 @@ use App\Application\Service\BookingService;
 use App\Application\Service\Handler\ResponseHandler;
 use App\Domain\Entity\Booking;
 use App\Domain\Entity\Guest;
-use App\Domain\Repository\BookingRepository;
 use App\Domain\Service\PMStransformer;
+use App\Infrastructure\Adapter\BookingRepositoryDoctrineAdapter;
 use App\Infrastructure\Mapper\BookingMapper;
 use App\Infrastructure\Service\PMSApiFetch;
 use App\Infrastructure\Service\RedisCacheRepository;
@@ -30,7 +30,7 @@ class BookingServiceTest extends TestCase
     private LoggerInterface $logger;
     private ValidatorInterface $validator;
     private BookingMapper $bookingMapper;
-    private BookingRepository $repository;
+    private BookingRepositoryDoctrineAdapter $repository;
     private ResponseHandler $responseHandler;
 
     protected function setUp(): void
@@ -41,7 +41,7 @@ class BookingServiceTest extends TestCase
         $this->apiFetch = $this->createMock(PMSApiFetch::class);
         $this->transformer = $this->createMock(PMStransformer::class);
         $this->bookingMapper = $this->createMock(BookingMapper::class);
-        $this->repository = $this->createMock(BookingRepository::class);
+        $this->repository = $this->createMock(BookingRepositoryDoctrineAdapter::class);
         $this->responseHandler = $this->createMock(ResponseHandler::class);
 
         $this->bookingService = new BookingService(

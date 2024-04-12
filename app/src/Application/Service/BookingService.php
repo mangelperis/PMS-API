@@ -6,8 +6,8 @@ namespace App\Application\Service;
 
 use App\Application\Service\Handler\ResponseHandler;
 use App\Domain\Entity\Booking;
-use App\Domain\Repository\BookingRepository;
 use App\Domain\Service\PMStransformer;
+use App\Infrastructure\Adapter\BookingRepositoryDoctrineAdapter;
 use App\Infrastructure\Adapter\PMSBookingDTO;
 use App\Infrastructure\Mapper\BookingMapper;
 use App\Infrastructure\Service\PMSApiFetch;
@@ -30,19 +30,19 @@ class BookingService
     private LoggerInterface $logger;
     private ValidatorInterface $validator;
     private BookingMapper $bookingMapper;
-    private BookingRepository $repository;
+    private BookingRepositoryDoctrineAdapter $repository;
     private ResponseHandler $responseHandler;
 
 
     public function __construct(
-        LoggerInterface      $logger,
-        RedisCacheRepository $cacheRepository,
-        ValidatorInterface   $validator,
-        PMSApiFetch          $apiFetch,
-        PMStransformer       $transformer,
-        BookingMapper        $bookingMapper,
-        BookingRepository    $repository,
-        ResponseHandler      $responseHandler,
+        LoggerInterface                  $logger,
+        RedisCacheRepository             $cacheRepository,
+        ValidatorInterface               $validator,
+        PMSApiFetch                      $apiFetch,
+        PMStransformer                   $transformer,
+        BookingMapper                    $bookingMapper,
+        BookingRepositoryDoctrineAdapter $repository,
+        ResponseHandler                  $responseHandler,
     )
     {
         $this->logger = $logger;
@@ -201,7 +201,7 @@ class BookingService
                 $existingBooking = $this->repository->findOneBy(['hotelId' => $booking->getHotelId(), 'room' => $booking->getRoom()]);
 
                 // Already exists skip
-                if(null !== $existingBooking){
+                if (null !== $existingBooking) {
                     //Consider to update the Booking Details here...
                     $this->logger->notice(sprintf("Booking w/ [%s]-[%s] already exists", $booking->getHotelId(), $booking->getRoom()));
                     continue;

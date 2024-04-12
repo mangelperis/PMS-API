@@ -2,14 +2,15 @@
 declare(strict_types=1);
 
 
-namespace App\Domain\Repository;
+namespace App\Infrastructure\Adapter;
 
 use App\Domain\Entity\Booking;
+use App\Domain\Repository\BookingRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Exception;
 
-class BookingRepository extends EntityRepository implements BookingRepositoryInterface
+class BookingRepositoryDoctrineAdapter extends EntityRepository implements BookingRepositoryInterface
 {
     private EntityManagerInterface $entityManager;
 

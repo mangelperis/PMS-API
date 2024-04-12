@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Tests\Unit\Domain\Repository;
+namespace App\Tests\Infrastructure\Repository;
 
 use App\Domain\Entity\Booking;
-use App\Domain\Repository\BookingRepository;
+use App\Infrastructure\Adapter\BookingRepositoryDoctrineAdapter;
 use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Mapping\ClassMetadata;
@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 
 class BookingRepositoryTest extends TestCase
 {
-    private BookingRepository $bookingRepository;
+    private BookingRepositoryDoctrineAdapter $bookingRepository;
     private EntityManagerInterface $entityManager;
 
     public function setUp(): void
@@ -25,7 +25,7 @@ class BookingRepositoryTest extends TestCase
             ->with(Booking::class)
             ->willReturn($classMetadata);
 
-        $this->bookingRepository = new BookingRepository($this->entityManager);
+        $this->bookingRepository = new BookingRepositoryDoctrineAdapter($this->entityManager);
     }
 
     public function testSave(): void

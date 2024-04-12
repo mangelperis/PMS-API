@@ -14,7 +14,7 @@ use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
-#[ORM\Entity(repositoryClass: 'App\Domain\Repository\BookingRepository')]
+#[ORM\Entity(repositoryClass: 'App\Infrastructure\Adapter\BookingRepositoryDoctrineAdapter')]
 #[ORM\Table(name: 'bookings')]
 #[ORM\UniqueConstraint(name: 'booking_id', columns: ['booking_id'])]
 #[ORM\Index(columns: ['hotel_id'], name: 'hotel_id')]
